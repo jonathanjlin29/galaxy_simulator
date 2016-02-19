@@ -330,7 +330,7 @@ void stepParticles()
         particles.at(i)->updateParticlePosition(forces.at(i), h);
     }
 
-    
+   t+= h; 
 }
 
 int main(int argc, char **argv)
@@ -353,7 +353,6 @@ int main(int argc, char **argv)
 	int steps;
 	if(sscanf(argv[1], "%i", &steps)) {
 		// Success!
-        t = h * steps;
 		cout << "Running without OpenGL for " << steps << " steps" << endl;
 		// Run without OpenGL
 		for(int k = 0; k < steps; ++k) {
