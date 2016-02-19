@@ -1,0 +1,54 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: //home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec87694617/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec87694617.dir/build.make CMakeFiles/cmTryCompileExec87694617.dir/build
+gmake[1]: Entering directory `/home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp'
+gmake[1]: Warning: File `CMakeFiles/cmTryCompileExec87694617.dir/progress.make' has modification time 0.035 s in the future
+/usr/bin/cmake -E cmake_progress_report //home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec87694617.dir/CheckSymbolExists.c.o
+/opt/intel/compilers_and_libraries_2016.0.109/linux/bin/intel64/icc    -o CMakeFiles/cmTryCompileExec87694617.dir/CheckSymbolExists.c.o   -c //home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTryCompileExec87694617
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec87694617.dir/link.txt --verbose=1
+/opt/intel/compilers_and_libraries_2016.0.109/linux/bin/intel64/icc       CMakeFiles/cmTryCompileExec87694617.dir/CheckSymbolExists.c.o  -o cmTryCompileExec87694617 -rdynamic 
+CMakeFiles/cmTryCompileExec87694617.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x23): undefined reference to `pthread_create'
+gmake[1]: *** [cmTryCompileExec87694617] Error 1
+gmake[1]: Leaving directory `/home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTryCompileExec87694617/fast] Error 2
+
+File //home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: //home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec428747369/fast"
+gmake: Warning: File `Makefile' has modification time 0.0036 s in the future
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec428747369.dir/build.make CMakeFiles/cmTryCompileExec428747369.dir/build
+gmake[1]: Entering directory `/home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp'
+gmake[1]: Warning: File `CMakeFiles/cmTryCompileExec428747369.dir/progress.make' has modification time 0.056 s in the future
+/usr/bin/cmake -E cmake_progress_report //home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec428747369.dir/CheckFunctionExists.c.o
+/opt/intel/compilers_and_libraries_2016.0.109/linux/bin/intel64/icc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec428747369.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec428747369
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec428747369.dir/link.txt --verbose=1
+/opt/intel/compilers_and_libraries_2016.0.109/linux/bin/intel64/icc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec428747369.dir/CheckFunctionExists.c.o  -o cmTryCompileExec428747369 -rdynamic -lpthreads 
+ld: cannot find -lpthreads
+gmake[1]: *** [cmTryCompileExec428747369] Error 1
+gmake[1]: Leaving directory `/home/jlin29/Desktop/L09/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTryCompileExec428747369/fast] Error 2
+
+
