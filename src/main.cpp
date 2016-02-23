@@ -73,7 +73,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 static void initGL()
 {
 	GLSL::checkVersion();
-	
+
 	// Set background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// Enable z-buffer test
@@ -81,14 +81,14 @@ static void initGL()
 	// Enable alpha blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	progSimple = make_shared<Program>();
 	progSimple->setShaderNames(RESOURCE_DIR + "simple_vert.glsl", RESOURCE_DIR + "simple_frag.glsl");
 	progSimple->setVerbose(false); // Set this to true when debugging.
 	progSimple->init();
 	progSimple->addUniform("P");
 	progSimple->addUniform("MV");
-	
+
 	prog = make_shared<Program>();
 	prog->setVerbose(true); // Set this to true when debugging.
 	prog->setShaderNames(RESOURCE_DIR + "particle_vert.glsl", RESOURCE_DIR + "particle_frag.glsl");
@@ -100,18 +100,18 @@ static void initGL()
 	prog->addUniform("radius");
 	prog->addUniform("alphaTexture");
 	prog->addUniform("color");
-	
+
 	texture = make_shared<Texture>();
 	texture->setFilename(RESOURCE_DIR + "alpha.jpg");
 	texture->init();
-	
+
 	camera = make_shared<Camera>();
-	
+
 	// Initialize OpenGL for particles.
 	for(int i = 0; i < particles.size(); ++i) {
 		particles[i]->init();
 	}
-	
+
 	// If there were any OpenGL errors, this will print something.
 	// You can intersperse this line in your code to find the exact location
 	// of your OpenGL error.
@@ -131,7 +131,7 @@ public:
 		float z1 = V.row(2) * Vector4f(x1(0), x1(1), x1(2), 1.0f);
 		return z0 < z1;
 	}
-	
+
 	Matrix4f V; // current view matrix
 };
 ParticleSorter sorter;
@@ -153,11 +153,11 @@ void renderGL()
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
-	
+
 	// Use the window size for camera.
 	glfwGetWindowSize(window, &width, &height);
 	camera->setAspect((float)width/(float)height);
-	
+
 	// Clear buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if(keyToggles[(unsigned)'c']) {
@@ -170,10 +170,10 @@ void renderGL()
 	} else {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	
+
 	auto P = make_shared<MatrixStack>();
 	auto MV = make_shared<MatrixStack>();
-	
+
 	// Apply camera transforms
 	P->pushMatrix();
 	camera->applyProjectionMatrix(P);
@@ -181,7 +181,7 @@ void renderGL()
 	camera->applyViewMatrix(MV);
 	// Set view matrix for the sorter
 	sorter.V = MV->topMatrix();
-	
+
 	// Draw particles
 	prog->bind();
 	texture->bind(prog->getUniform("alphaTexture"), 0);
@@ -190,21 +190,23 @@ void renderGL()
 	// Since we don't want to modify the contents of the vector, we compute the
 	// sorted indices and traverse the particles in this sorted order.
 	auto sortedIndices = sortIndices(particles);
+
+	#pragma vector aligned
 	for(int i = 0; i < sortedIndices.size(); ++i) {
 		int ii = sortedIndices[i];
 		particles[ii]->draw(prog, MV);
 	}
 	texture->unbind(0);
 	prog->unbind();
-	
+
 	//////////////////////////////////////////////////////
 	// Cleanup
 	//////////////////////////////////////////////////////
-	
+
 	// Pop stacks
 	MV->popMatrix();
 	P->popMatrix();
-	
+
 	GLSL::checkError(GET_FILE_LINE);
 }
 
@@ -215,18 +217,18 @@ void saveParticles(const char *filename)
 		cout << "Could not open " << filename << endl;
 		return;
 	}
-	
+
 	// 1st line:
 	// <n> <h> <e2>
 	out << particles.size() << " " << h << " " << " " << e2 << endl;
 
 	// Rest of the lines:
 	// <mass> <position> <velocity> <color> <radius>
-	
+
 	//
 	// IMPLEMENT ME
 	//
-	
+
 	out.close();
 	cout << "Wrote galaxy to " << filename << endl;
 }
@@ -246,30 +248,30 @@ void loadParticles(const char *filename)
 	in >> n;
 	in >> h;
 	in >> e2;
-	
+
     // Rest of the lines:
     // <mass> <position> <velocity> <color> <radius>
     while(in.good()) {
-        double mass, posx, posy, posz, velx, vely, velz,
-        colorx, colory, colorz, radius;
-        in >> mass;
-        in >> posx;
-        in >> posy;
-        in >> posz;
-        in >> velx;
-        in >> vely;
-        in >> velz;
-        in >> colorx;
-        in >> colory;
-        in >> colorz;
-        in >> radius;
-        auto p1 = make_shared<Particle>();
-        p1->setMass(mass);
-        p1->setPosition(Vector3d(posx, posy, posz));
-        p1->setColor(Vector3f(colorx, colory, colorz));
-        p1->setRadius(radius);
-        p1->setVelocity(Vector3d(velx, vely, velz));
-        particles.push_back(p1);
+	double mass, posx, posy, posz, velx, vely, velz,
+	colorx, colory, colorz, radius;
+	in >> mass;
+	in >> posx;
+	in >> posy;
+	in >> posz;
+	in >> velx;
+	in >> vely;
+	in >> velz;
+	in >> colorx;
+	in >> colory;
+	in >> colorz;
+	in >> radius;
+	auto p1 = make_shared<Particle>();
+	p1->setMass(mass);
+	p1->setPosition(Vector3d(posx, posy, posz));
+	p1->setColor(Vector3f(colorx, colory, colorz));
+	p1->setRadius(radius);
+	p1->setVelocity(Vector3d(velx, vely, velz));
+	particles.push_back(p1);
     }
     in.close();
     cout << "Loaded galaxy from " << filename << endl;
@@ -282,13 +284,13 @@ void createParticles()
     //	h = 1e-2;
     e2 = 1e-4;
     h = 1.0;
-    
+
     auto p = make_shared<Particle>();
     p->setMass(1e-3);
     p->setPosition(Vector3d(0.0, 0.0, 0.0));
     p->setVelocity(Vector3d(0.0, 0.0, 0.0));
     particles.push_back(p);
-    
+
     auto p2 = make_shared<Particle>();
     double a = 2.0;
     double r = 1.0;
@@ -297,40 +299,44 @@ void createParticles()
     double y = sqrt(1e-3 * (2/r - 1.0/a));
     p2->setVelocity(Vector3d(0.0, y, 0.0));
     particles.push_back(p2);
-    
+
 }
 
 void stepParticles()
 {
-    //
-    // IMPLEMENT ME
-    // PreRequisite: particles have been loaded into global variable
-    // vector< shared_ptr<Particle> > particles;
-    vector <Vector3d> forces;
-    
-    #pragma omp parallel for
-    for (int i = 0; i < particles.size(); i++) {
-        Vector3d force(0.0, 0.0, 0.0);
-        for (int j = 0; j < particles.size(); j++) {
-            shared_ptr<Particle> partI = particles.at(i);
-            shared_ptr<Particle> partJ = particles.at(j);
-            if(j != i) {
-                Eigen::Vector3d rij = partJ->getPosition() - partI->getPosition();
-                double rsquared = pow(rij.norm(), 2);
-                double numerator = partI->getMass() * partJ->getMass();
-                double denominator = pow(rsquared + e2, 3.0/2);
-                force += (numerator * rij)/denominator;
-            }
-        }
-        forces.push_back(force);
-    }
-    
-    for(int i = 0; i < particles.size(); i++) {
-        particles.at(i)->updateParticleVelocity(forces.at(i), h);
-        particles.at(i)->updateParticlePosition(forces.at(i), h);
-    }
+   //
+   // IMPLEMENT ME
+   // PreRequisite: particles have been loaded into global variable
+   // vector< shared_ptr<Particle> > particles;
+   vector <Vector3d> forces;
 
-   t+= h; 
+
+   for (int i = 0; i < particles.size(); i++) {
+      Vector3d force(0.0, 0.0, 0.0);
+
+//#pragma offload target(mic:0) inout(forces)
+#pragma omp parallel for private(forces)
+
+      for (int j = 0; j < particles.size(); j++) {
+	 shared_ptr<Particle> partI = particles.at(i);
+	 shared_ptr<Particle> partJ = particles.at(j);
+	 if(j != i) {
+	    Eigen::Vector3d rij = partJ->getPosition() - partI->getPosition();
+	    double rsquared = pow(rij.norm(), 2);
+	    double numerator = partI->getMass() * partJ->getMass();
+	    double denominator = pow(rsquared + e2, 3.0/2);
+	    force += (numerator * rij)/denominator;
+	 }
+      }
+      forces.push_back(force);
+   }
+
+   for(int i = 0; i < particles.size(); i++) {
+      particles.at(i)->updateParticleVelocity(forces.at(i), h);
+      particles.at(i)->updateParticlePosition(forces.at(i), h);
+   }
+
+   t+= h;
 }
 
 int main(int argc, char **argv)
