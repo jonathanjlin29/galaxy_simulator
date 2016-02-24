@@ -233,22 +233,23 @@ void renderGL()
 	// Sort particles by Z for transparency rendering.
 	// Since we don't want to modify the contents of the vector, we compute the
 	// sorted indices and traverse the particles in this sorted order.
-	auto sortedIndices = sortIndices(particles);
+//	auto sortedIndices = sortIndices(particles);
 //    auto sortedIndexx = sortIndicices(positionx);
 //    auto sortedIndexy = sortIndicices(positiony);
-//    auto sortedIndexz = sortIndicices(positionz);
+    auto sortedIndexz = sortIndices(positionz);
 //	for(int i = 0; i < sortedIndices.size(); ++i) {
 //		int ii = sortedIndices[i];
 //		particles[ii]->draw(prog, MV);
 //	}
-    for(int i = 0; i < sortedindexz; i++) {
+    for(int i = 0; i < sortedIndexz.size(); i++) {
         int ii = sortedIndexz[i];
         /*
          void setPosition(const Eigen::Vector3d x) { this->x = x; }
          void setVelocity(const Eigen::Vector3d v) { this->v = v; }
          */
-        particle[ii]->setPosition(Vector3d(positionx.at(ii), positiony.at(ii), positionz(ii)));
-        particle[ii]->setVelocity(Vector3d(velocityx.at(ii), velocityy.at(ii), velocityz.at(ii)));)
+        particles[ii]->setPosition(Vector3d(positionx.at(ii), positiony.at(ii), positionz.at(ii)));
+        particles[ii]->setVelocity(Vector3d(velocityx.at(ii), velocityy.at(ii), velocityz.at(ii)));
+	particles[ii]->draw(prog, MV);
     }
 	texture->unbind(0);
 	prog->unbind();
@@ -402,7 +403,6 @@ void stepParticles()
     vector <double> forceZ;
     for (int i = 0; i < positionx.size() ; i++ ) {
         double forcex = 0, forcey = 0, forcez = 0;
-        
         for(int j = 0; j < positionx.size(); j++ ) {
             if ( j != i ) {
                 double rijx = positionx[j] - positionx[i];
