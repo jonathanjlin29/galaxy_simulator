@@ -329,9 +329,11 @@ void loadParticles(const char *filename)
         p1->setVelocity(Vector3d(velx, vely, velz));
         particles.push_back(p1);
         
-        
         masses.push_back(mass);
         radius.push_back(rad);
+
+
+
         positionx.push_back(posx);
         positiony.push_back(posy);
         positionz.push_back(posz);
@@ -380,7 +382,7 @@ void stepParticles()
     // IMPLEMENT ME
     // PreRequisite: particles have been loaded into global variable
     // vector< shared_ptr<Particle> > particles;
-    vector <Vector3d> forces;
+    //vector <Vector3d> forces;
     
 //    for (int i = 0; i < particles.size(); i++) {
 //        Vector3d force(0.0, 0.0, 0.0);
@@ -401,18 +403,29 @@ void stepParticles()
     double *forceX = (double *)malloc(sizeof(double) * positionx.size());
     double *forceY = (double *) malloc(sizeof(double) * positionx.size());
     double *forceZ = (double *)malloc(sizeof(double) * positionx.size());
+ 
+    double *posX = &positionx[0];
+    double *posY = &positiony[0];
+    double *posZ = &positionz[0];
+
+    double *mass = &masses[0];
+    
+    int sizeX = positionx.size();
+    int sizeY = positiony.size();
+    int sizeZ = positionz.size();
     //
+    #pragma offload target(mic) inout(forceX: length(sizeX)) inout(forceY: length(sizeY)) inout(forceZ: length(sizeZ)) in(posX: length(sizeX)) in(posY: length(sizeY)) in(posZ: length(sizeZ)) in(mass: length(sizeX))
     #pragma omp parallel for
-    for (int i = 0; i < positionx.size() ; i++ ) {
+    for (int i = 0; i < sizeX; i++ ) {
         double forcex = 0, forcey = 0, forcez = 0;
-        for(int j = 0; j < positionx.size(); j++ ) {
+        for(int j = 0; j < sizeX; j++ ) {
             if ( j != i ) {
-                double rijx = positionx[j] - positionx[i];
-                double rijy = positiony[j] - positiony[i];
-                double rijz = positionz[j] - positionz[i];
+                double rijx = posX[j] - posX[i];
+                double rijy = posY[j] - posY[i];
+                double rijz = posZ[j] - posZ[i];
                 double normalize = pow(rijx*rijx + rijy*rijy + rijz*rijz, 0.5);
                 double rsquared = normalize * normalize;
-                double numerator = masses.at(i) * masses.at(j);
+                double numerator = mass[i] * mass[j];
                 double denominator = pow(rsquared + e2, 3.0/2);
                 double multiplier = numerator/denominator;
                 forcex += multiplier * rijx;
