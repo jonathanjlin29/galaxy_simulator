@@ -159,7 +159,7 @@ class ParticleSorter {
 public:
 	bool operator()(size_t i0, size_t i1) const
 	{
-		// Particle positions in world space
+//		// Particle positions in world space
 //		const Vector3d &x0 = particles[i0]->getPosition();
 //		const Vector3d &x1 = particles[i1]->getPosition();
         const double x0x = positionx.at(i0);
@@ -234,10 +234,22 @@ void renderGL()
 	// Since we don't want to modify the contents of the vector, we compute the
 	// sorted indices and traverse the particles in this sorted order.
 	auto sortedIndices = sortIndices(particles);
-	for(int i = 0; i < sortedIndices.size(); ++i) {
-		int ii = sortedIndices[i];
-		particles[ii]->draw(prog, MV);
-	}
+//    auto sortedIndexx = sortIndicices(positionx);
+//    auto sortedIndexy = sortIndicices(positiony);
+//    auto sortedIndexz = sortIndicices(positionz);
+//	for(int i = 0; i < sortedIndices.size(); ++i) {
+//		int ii = sortedIndices[i];
+//		particles[ii]->draw(prog, MV);
+//	}
+    for(int i = 0; i < sortedindexz; i++) {
+        int ii = sortedIndexz[i];
+        /*
+         void setPosition(const Eigen::Vector3d x) { this->x = x; }
+         void setVelocity(const Eigen::Vector3d v) { this->v = v; }
+         */
+        particle[ii]->setPosition(Vector3d(positionx.at(ii), positiony.at(ii), positionz(ii)));
+        particle[ii]->setVelocity(Vector3d(velocityx.at(ii), velocityy.at(ii), velocityz.at(ii)));)
+    }
 	texture->unbind(0);
 	prog->unbind();
 	
