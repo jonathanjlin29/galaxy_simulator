@@ -398,9 +398,11 @@ void stepParticles()
 //        forces.push_back(force);
 //    }
     
-    vector <double> forceX;
-    vector <double> forceY;
-    vector <double> forceZ;
+    double *forceX = (double *)malloc(sizeof(double) * positionx.size());
+    double *forceY = (double *) malloc(sizeof(double) * positionx.size());
+    double *forceZ = (double *)malloc(sizeof(double) * positionx.size());
+    //
+    #pragma omp parallel for
     for (int i = 0; i < positionx.size() ; i++ ) {
         double forcex = 0, forcey = 0, forcez = 0;
         for(int j = 0; j < positionx.size(); j++ ) {
@@ -418,9 +420,12 @@ void stepParticles()
                 forcez += multiplier * rijz;
             }
         }
-        forceX.push_back(forcex);
-        forceY.push_back(forcey);
-        forceZ.push_back(forcez);
+        //forceX.push_back(forcex);
+        //forceY.push_back(forcey);
+        //forceZ.push_back(forcez);
+        forceX[i] = forcex;
+        forceY[i] = forcey;
+        forceZ[i] = forcez;
     }
     
 //    for(int i = 0; i < particles.size(); i++) {
@@ -428,9 +433,9 @@ void stepParticles()
 //        particles.at(i)->updateParticlePosition(forces.at(i), h);
 //    }
     for (int i = 0; i < positionx.size(); i++) {
-        velocityx.at(i) += (h * 1.0/masses.at(i)) * forceX.at(i);
-        velocityy.at(i) += (h * 1.0/masses.at(i)) * forceY.at(i);
-        velocityz.at(i) += (h * 1.0/masses.at(i)) * forceZ.at(i);
+        velocityx.at(i) += (h * 1.0/masses.at(i)) * forceX[i];//forceX.at(i);
+        velocityy.at(i) += (h * 1.0/masses.at(i)) * forceY[i];//forceY.at(i);
+        velocityz.at(i) += (h * 1.0/masses.at(i)) * forceZ[i];//forceZ.at(i);
         
         positionx.at(i) += (h * velocityx.at(i));
         positiony.at(i) += (h * velocityy.at(i));
