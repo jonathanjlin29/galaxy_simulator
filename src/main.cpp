@@ -404,7 +404,7 @@ void stepParticles()
 //    }
 
     double *forceX = (double *)malloc(sizeof(double) * positionx.size());
-    double *forceY = (double *) malloc(sizeof(double) * positionx.size());
+    double *forceY = (double *)malloc(sizeof(double) * positionx.size());
     double *forceZ = (double *)malloc(sizeof(double) * positionx.size());
 
     double *posX = &positionx[0];
