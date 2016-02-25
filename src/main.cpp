@@ -244,6 +244,8 @@ void renderGL()
 //		int ii = sortedIndices[i];
 //		particles[ii]->draw(prog, MV);
 //	}
+
+
 #pragma omp parallel for
     for(int i = 0; i < sortedIndexz.size(); i++) {
 	int ii = sortedIndexz[i];
@@ -418,6 +420,9 @@ void stepParticles()
     int sizeY = positiony.size();
     int sizeZ = positionz.size();
 
+    // Offload seems to take more time since there is a lot of
+    // serial computation in the second for loop
+
     //#pragma offload target(mic) inout(forceX: length(sizeX)) inout(forceY: length(sizeY)) inout(forceZ: length(sizeZ)) in(posX: length(sizeX)) in(posY: length(sizeY)) in(posZ: length(sizeZ)) in(mass: length(sizeX))
     #pragma omp parallel for
     for (int i = 0; i < sizeX; i++ ) {
@@ -446,10 +451,10 @@ void stepParticles()
 	forceZ[i] = forcez;
     }
 
-//    for(int i = 0; i < particles.size(); i++) {
-//        particles.at(i)->updateParticleVelocity(forces.at(i), h);
-//        particles.at(i)->updateParticlePosition(forces.at(i), h);
-//    }
+   // for(int i = 0; i < particles.size(); i++) {
+   //     particles.at(i)->updateParticleVelocity(forces.at(i), h);
+   //     particles.at(i)->updateParticlePosition(forces.at(i), h);
+   // }
 
     double *velx = &velocityx[0];
     double *vely = &velocityy[0];
