@@ -5,9 +5,9 @@
 
 #define GLEW_STATIC
 // use this to run on mic comment out if no mic
-//#include "/CPE419/glew-1.13.0/include/GL/glew.h"
+#include "/CPE419/glew-1.13.0/include/GL/glew.h"
 // use when no mic
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "Camera.h"
@@ -244,7 +244,6 @@ void renderGL()
 //		int ii = sortedIndices[i];
 //		particles[ii]->draw(prog, MV);
 //	}
-#pragma omp parallel for
     for(int i = 0; i < sortedIndexz.size(); i++) {
 	int ii = sortedIndexz[i];
 	/*
@@ -418,8 +417,6 @@ void stepParticles()
     int sizeY = positiony.size();
     int sizeZ = positionz.size();
 
-    //#pragma offload target(mic) inout(forceX: length(sizeX)) inout(forceY: length(sizeY)) inout(forceZ: length(sizeZ)) in(posX: length(sizeX)) in(posY: length(sizeY)) in(posZ: length(sizeZ)) in(mass: length(sizeX))
-    #pragma omp parallel for
     for (int i = 0; i < sizeX; i++ ) {
 	double forcex = 0, forcey = 0, forcez = 0;
 	#pragma simd
