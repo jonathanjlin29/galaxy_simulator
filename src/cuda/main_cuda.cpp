@@ -454,7 +454,7 @@ int main(int argc, char **argv)
 		// Loop until the user closes the window.
 		while(!glfwWindowShouldClose(window)) {
 			// Step simulation.
-			//stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityx, h, t);
+			stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityx, h, t);
 			// Render scene.
 			renderGL();
 			// Swap front and back buffers.

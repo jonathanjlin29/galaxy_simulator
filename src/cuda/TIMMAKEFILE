@@ -1,0 +1,2 @@
+icpc -std=c++0x -Wall -pedantic -O3 -I//home/tchu01/lib/eigen-3.2.6 -I//home/tchu01/lib/glew-1.13.0/include -I//home/tchu01/lib/glfw-3.1.2/include *.cpp //home/tchu01/lib/glew-1.13.0/lib/libGLEW.a //home/tchu01/lib/glfw-3.1.2/release/src/libglfw3.a -lGL -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -lcudart cuda_step.o -o Lab09
+
