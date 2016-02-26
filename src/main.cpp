@@ -82,7 +82,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 
 static void char_callback(GLFWwindow *window, unsigned int key)
 {
-	keyToggles[key] = !keyToggles[key];
+	//keyToggles[key] = !keyToggles[key];
 }
 
 static void cursor_position_callback(GLFWwindow* window, double xmouse, double ymouse)
@@ -246,13 +246,9 @@ void renderGL()
 //	}
 
 
-#pragma omp parallel for
+//#pragma omp parallel for
     for(int i = 0; i < sortedIndexz.size(); i++) {
 	int ii = sortedIndexz[i];
-	/*
-	 void setPosition(const Eigen::Vector3d x) { this->x = x; }
-	 void setVelocity(const Eigen::Vector3d v) { this->v = v; }
-	 */
 	particles[ii]->setPosition(Vector3d(positionx.at(ii), positiony.at(ii), positionz.at(ii)));
 	particles[ii]->setVelocity(Vector3d(velocityx.at(ii), velocityy.at(ii), velocityz.at(ii)));
 	particles[ii]->draw(prog, MV);
@@ -423,11 +419,11 @@ void stepParticles()
     // Offload seems to take more time since there is a lot of
     // serial computation in the second for loop
 
-    //#pragma offload target(mic) inout(forceX: length(sizeX)) inout(forceY: length(sizeY)) inout(forceZ: length(sizeZ)) in(posX: length(sizeX)) in(posY: length(sizeY)) in(posZ: length(sizeZ)) in(mass: length(sizeX))
+//    #pragma offload target(mic) inout(forceX: length(sizeX)) inout(forceY: length(sizeY)) inout(forceZ: length(sizeZ)) in(posX: length(sizeX)) in(posY: length(sizeY)) in(posZ: length(sizeZ)) in(mass: length(sizeX))
     #pragma omp parallel for
     for (int i = 0; i < sizeX; i++ ) {
 	double forcex = 0, forcey = 0, forcez = 0;
-	#pragma simd
+	//#pragma simd
 	for(int j = 0; j < sizeX; j++ ) {
 	    if ( j != i ) {
 		double rijx = posX[j] - posX[i];
@@ -472,7 +468,9 @@ void stepParticles()
     }
 
    t += h;
-
+    free(forceX);
+    free(forceY);
+    free(forceZ);
 }
 
 int main(int argc, char **argv)
@@ -530,19 +528,28 @@ int main(int argc, char **argv)
 		cout << "OpenGL version: " << glGetString(GL_VERSION) << endl;
 		cout << "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 		// Set vsync.
+		
 		glfwSwapInterval(1);
 		// Set keyboard callback.
+		cout << "Set key callback..." << endl;
 		glfwSetKeyCallback(window, key_callback);
 		// Set char callback.
+		cout << "Set char callback..." << endl;
 		glfwSetCharCallback(window, char_callback);
 		// Set cursor position callback.
+		cout << "Set cursor callback.." << endl;
 		glfwSetCursorPosCallback(window, cursor_position_callback);
-		// Set mouse button callback.
+		// Set mouse button callback.key
+		cout << "Set mouse button callback.." << endl;
 		glfwSetMouseButtonCallback(window, mouse_button_callback);
-		// Initialize scene.
+		// Initialize scene.cursor
+		cout << "initialize gl....." << endl;
 		initGL();
-		// Loop until the user closes the window.
+		// Loop until the user closes the window
+		double start = glfwGetTime();
+		int countFrames= 0;
 		while(!glfwWindowShouldClose(window)) {
+			countFrames++;
 			// Step simulation.
 			stepParticles();
 			// Render scene.
@@ -552,6 +559,8 @@ int main(int argc, char **argv)
 			// Poll for and process events.
 			glfwPollEvents();
 		}
+		double currentTime = glfwGetTime();
+		cout << countFrames/(currentTime - start) << endl;
 		// Quit program.
 		glfwDestroyWindow(window);
 		glfwTerminate();
