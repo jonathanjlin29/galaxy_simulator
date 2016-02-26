@@ -129,6 +129,8 @@ void stepParticles(vector<double> &positionx, vector<double> &positiony , vector
 
     dim3 dimBlock(CUDA_BLOCK, 1);
     dim3 dimGrid(numParticlesPadded / CUDA_BLOCK, 1);
+    //cout << "about to execute the kernal\n";
+
 
     // kernel call
     //MatMulShared<<<dimGrid, dimBlock>>>(matrixAd, matrixBd, resultMatrixd, matrixANewRow, matrixBNewCol, matrixANewCol);
@@ -140,7 +142,7 @@ void stepParticles(vector<double> &positionx, vector<double> &positiony , vector
     cudaMemcpy(&positionz[0], posZd, sizeof(double) * sizeZ, cudaMemcpyDeviceToHost);
     cudaMemcpy(&velocityx[0], velXd, sizeof(double) * sizeX, cudaMemcpyDeviceToHost);
     cudaMemcpy(&velocityy[0], velYd, sizeof(double) * sizeY, cudaMemcpyDeviceToHost);
-//    cudaMemcpy(&velocityz[0]. velZd, sizeof(double) * sizeZ, cudaMemcpyDeviceToHost);
+    cudaMemcpy(&velocityz[0], velZd, sizeof(double) * sizeZ, cudaMemcpyDeviceToHost);
 
     // free cudaMalloc
     cudaFree(forceXd);

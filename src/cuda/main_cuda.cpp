@@ -395,28 +395,28 @@ int main(int argc, char **argv)
 	}
 	// Create the particles...
 	if(argc == 2) {
-		// ... without input file
-		createParticles();
+	   // ... without input fi
+	   createParticles();
 	} else {
-		// ... with input file
-		loadParticles(argv[2]);
+	   // ... with input file
+	   loadParticles(argv[2]);
 	}
 	// Try parsing `steps`
 	int steps;
 	if(sscanf(argv[1], "%i", &steps)) {
-		// Success!
-	t = h * steps;
-		cout << "Running without OpenGL for " << steps << " steps" << endl;
-		// Run without OpenGL
-		for(int k = 0; k < steps; ++k) {
-		   //stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityx, h, t);
-		}
+	   // Success!
+	   t = h * steps;
+	   cout << "Running without OpenGL for " << steps << " steps" << endl;
+	   // Run without OpenGL
+	   for(int k = 0; k < steps; ++k) {
+	      stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityx, h, t);
+	   }
 	} else {
-		// `steps` could not be parsed
-		cout << "Running with OpenGL" << endl;
-		// Run with OpenGL until the window is closed
-		RESOURCE_DIR = argv[1] + string("/");
-		// Set error callback.
+	   // `steps` could not be parsed
+	   cout << "Running with OpenGL" << endl;
+	   // Run with OpenGL until the window is closed
+	   RESOURCE_DIR = argv[1] + string("/");
+	   // Set error callback.
 		glfwSetErrorCallback(error_callback);
 		// Initialize the library.
 		if(!glfwInit()) {
