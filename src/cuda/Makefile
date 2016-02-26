@@ -1,12 +1,12 @@
 NVCC=nvcc
 GCC=gcc
-CFLAGS=-std=c++0x -O3
+CFLAGS=-std=c++0x -lstdc++ -O3
 OFLAGS=-c
 OBJ=cuda_step.o
 DEP=cuda_step.cu
 
 INC=-I$(EIGEN3_INCLUDE_DIR) -I$(GLEW_DIR)/include -I$(GLFW_DIR)/include
-LIB=-lGL -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -fopenmp
+LIB=-lGL -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -I/usr/local/cuda/include
 
 all: $(OBJ)
 	$(GCC) $(INC) $(CFLAGS) $(LIB) -lcudart $(OBJ) *.cpp -o Lab09_cuda

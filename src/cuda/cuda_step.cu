@@ -2,8 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include <math.h> 
+#include <math.h>
 
+#include </usr/local/cuda/include/cuda_runtime.h>
 #include "cuda_step.h"
 
 using namespace std;
