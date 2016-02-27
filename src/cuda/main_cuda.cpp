@@ -407,9 +407,11 @@ int main(int argc, char **argv)
 	   // Success!
 	   t = h * steps;
 	   cout << "Running without OpenGL for " << steps << " steps" << endl;
+
 	   // Run without OpenGL
 	   for(int k = 0; k < steps; ++k) {
 	      stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityx, h, t);
+	      cout << "posX = " << positionx[0];
 	   }
 	} else {
 	   // `steps` could not be parsed
@@ -455,6 +457,8 @@ int main(int argc, char **argv)
 		while(!glfwWindowShouldClose(window)) {
 			// Step simulation.
 			stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityx, h, t);
+			printf("%lf\n", positionx[0]);
+//			cout << "posX = " << positionx[0];
 			// Render scene.
 			renderGL();
 			// Swap front and back buffers.

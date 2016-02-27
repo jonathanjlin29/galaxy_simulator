@@ -12,7 +12,7 @@ using namespace std;
 #define CUDA_BLOCK 32
 
 __global__ void calculateStepParticles(double *forceXd, double *forceYd, double *forceZd, double *posXd, double *posYd, double *posZd,
-      double *massd, double *velXd, double *velYd, double *velZd, int h, int sizeX, int numParticlesPadded) {
+      double *massd, double *velXd, double *velYd, double *velZd, double h, int sizeX, int numParticlesPadded) {
    int tNdx = blockIdx.x * CUDA_BLOCK + threadIdx.x;    // <-- might
 							// need to
 							// check this
@@ -36,7 +36,7 @@ __global__ void calculateStepParticles(double *forceXd, double *forceYd, double 
       for(int i = 0; i < numParticlesPadded / CUDA_BLOCK; i++) {
 
       }
-   }
+      }
    */
 
    double forcex = 0, forcey = 0, forcez = 0;
@@ -48,29 +48,32 @@ __global__ void calculateStepParticles(double *forceXd, double *forceYd, double 
 	 double normalize = pow(rijx*rijx + rijy*rijy + rijz*rijz, 0.5);
 	 double rsquared = normalize * normalize;
 	 double numerator = massd[tNdx] * massd[i];
-	      double denominator = pow(rsquared + e2, 3.0/2);
-		   double multiplier = numerator/denominator;
-		   forcex += multiplier * rijx;
-	      forcey += multiplier * rijy;
-	      forcez += multiplier * rijz;
+	 double denominator = pow(rsquared + e2, 3.0/2);
+	 double multiplier = numerator/denominator;
+	 forcex += multiplier * rijx;
+	 forcey += multiplier * rijy;
+	 forcez += multiplier * rijz;
       }
    }
-	forceXd[tNdx] = forcex;
-	forceYd[tNdx] = forcey;
-	forceZd[tNdx] = forcez;
+   forceXd[tNdx] = forcex;
+   forceYd[tNdx] = forcey;
+   forceZd[tNdx] = forcez;
 
    velXd[tNdx] += (h * 1.0/massd[tNdx]) * forceXd[tNdx];
    velYd[tNdx] += (h * 1.0/massd[tNdx]) * forceYd[tNdx];
    velZd[tNdx] += (h * 1.0/massd[tNdx]) * forceZd[tNdx];
 
    posXd[tNdx] += (h * velXd[tNdx]);
+   //printf("velXd = %lf\n", velXd[tNdx]);
+   //printf("posXd = %lf\n", posXd[tNdx]);
+
    posYd[tNdx] += (h * velYd[tNdx]);
    posZd[tNdx] += (h * velZd[tNdx]);
 
 }
 
 void stepParticles(vector<double> &positionx, vector<double> &positiony , vector<double> &positionz, vector<double> &masses,
-		   vector<double> &velocityx, vector<double> &velocityy, vector<double> &velocityz, int h, int t)
+		   vector<double> &velocityx, vector<double> &velocityy, vector<double> &velocityz, double h, double t)
 {
     //
     // IMPLEMENT ME
