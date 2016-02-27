@@ -410,8 +410,11 @@ int main(int argc, char **argv)
 
 	   // Run without OpenGL
 	   for(int k = 0; k < steps; ++k) {
-	      stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityx, h, t);
-	      cout << "posX = " << positionx[0];
+	      stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityz, h, &t, e2);
+	      // printf("%lf\n", positionx[0]);
+	      // printf("%lf\n", positiony[0]);
+	      // printf("%lf\n", positionz[0]);
+	      //cout << "posX = " << positionx[0];
 	   }
 	} else {
 	   // `steps` could not be parsed
@@ -453,19 +456,25 @@ int main(int argc, char **argv)
 		glfwSetMouseButtonCallback(window, mouse_button_callback);
 		// Initialize scene.
 		initGL();
+		// Loop until the user closes the window
+		double start = glfwGetTime();
+		int countFrames= 0;
 		// Loop until the user closes the window.
 		while(!glfwWindowShouldClose(window)) {
-			// Step simulation.
-			stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityx, h, t);
-			printf("%lf\n", positionx[0]);
+		   countFrames++;
+		   // Step simulation.
+		   stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityz, h, &t, e2);
+		   printf("%lf\n", positionx[0]);
 //			cout << "posX = " << positionx[0];
-			// Render scene.
-			renderGL();
-			// Swap front and back buffers.
-			glfwSwapBuffers(window);
-			// Poll for and process events.
-			glfwPollEvents();
+		   // Render scene.
+		   renderGL();
+		   // Swap front and back buffers.
+		   glfwSwapBuffers(window);
+		   // Poll for and process events.
+		   glfwPollEvents();
 		}
+		double currentTime = glfwGetTime();
+		cout << "fps = " <<  countFrames/(currentTime - start) << endl;
 		// Quit program.
 		glfwDestroyWindow(window);
 		glfwTerminate();
