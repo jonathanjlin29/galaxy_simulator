@@ -12,12 +12,12 @@ using namespace std;
 #define CUDA_BLOCK 32
 
 __global__ void calculateStepParticles(double *forceXd, double *forceYd, double *forceZd, double *posXd, double *posYd, double *posZd,
-      double *massd, double *velXd, double *velYd, double *velZd, double h, int sizeX, int numParticlesPadded) {
+				       double *massd, double *velXd, double *velYd, double *velZd, double h, int sizeX, int numParticlesPadded, double e2) {
    int tNdx = blockIdx.x * CUDA_BLOCK + threadIdx.x;    // <-- might
 							// need to
 							// check this
 
-   double e2 = 1e-4;
+//   double e2 = 1e-4;
    //double h = 1.0;
 
 
@@ -55,48 +55,29 @@ __global__ void calculateStepParticles(double *forceXd, double *forceYd, double 
 	 forcez += multiplier * rijz;
       }
    }
+
+
    forceXd[tNdx] = forcex;
    forceYd[tNdx] = forcey;
    forceZd[tNdx] = forcez;
+   //printf("cuda = %lf\n",forceZd[0]);
 
    velXd[tNdx] += (h * 1.0/massd[tNdx]) * forceXd[tNdx];
    velYd[tNdx] += (h * 1.0/massd[tNdx]) * forceYd[tNdx];
    velZd[tNdx] += (h * 1.0/massd[tNdx]) * forceZd[tNdx];
 
    posXd[tNdx] += (h * velXd[tNdx]);
-   //printf("velXd = %lf\n", velXd[tNdx]);
-   //printf("posXd = %lf\n", posXd[tNdx]);
-
    posYd[tNdx] += (h * velYd[tNdx]);
    posZd[tNdx] += (h * velZd[tNdx]);
+
+   // printf("cuda = %lf\n",posYd[0] );
+   // printf("cuda = %lf\n",posZd[0] );
 
 }
 
 void stepParticles(vector<double> &positionx, vector<double> &positiony , vector<double> &positionz, vector<double> &masses,
-		   vector<double> &velocityx, vector<double> &velocityy, vector<double> &velocityz, double h, double t)
+		   vector<double> &velocityx, vector<double> &velocityy, vector<double> &velocityz, double h, double *t, double e2)
 {
-    //
-    // IMPLEMENT ME
-    // PreRequisite: particles have been loaded into global variable
-    // vector< shared_ptr<Particle> > particles;
-    //vector <Vector3d> forces;
-
-//    for (int i = 0; i < particles.size(); i++) {
-//        Vector3d force(0.0, 0.0, 0.0);
-//        for (int j = 0; j < particles.size(); j++) {
-//            shared_ptr<Particle> partI = particles.at(i);
-//            shared_ptr<Particle> partJ = particles.at(j);
-//            if(j != i) {
-//                Eigen::Vector3d rij = partJ->getPosition() - partI->getPosition();
-//                double rsquared = pow(rij.norm(), 2);
-//                double numerator = partI->getMass() * partJ->getMass();
-//                double denominator = pow(rsquared + e2, 3.0/2);
-//                force += (numerator * rij)/denominator;
-//            }
-//        }
-//        forces.push_back(force);
-//    }
-
     int sizeX = positionx.size();
     int sizeY = positiony.size();
     int sizeZ = positionz.size();
@@ -137,7 +118,7 @@ void stepParticles(vector<double> &positionx, vector<double> &positiony , vector
 
     // kernel call
     //MatMulShared<<<dimGrid, dimBlock>>>(matrixAd, matrixBd, resultMatrixd, matrixANewRow, matrixBNewCol, matrixANewCol);
-    calculateStepParticles<<<dimGrid, dimBlock>>>(forceXd, forceYd, forceZd, posXd, posYd, posZd, massd, velXd, velYd, velZd, h, sizeX, numParticlesPadded);
+    calculateStepParticles<<<dimGrid, dimBlock>>>(forceXd, forceYd, forceZd, posXd, posYd, posZd, massd, velXd, velYd, velZd, h, sizeX, numParticlesPadded, e2);
 
     // copy data back from device to host
     cudaMemcpy(&positionx[0], posXd, sizeof(double) * sizeX, cudaMemcpyDeviceToHost);
@@ -146,6 +127,9 @@ void stepParticles(vector<double> &positionx, vector<double> &positiony , vector
     cudaMemcpy(&velocityx[0], velXd, sizeof(double) * sizeX, cudaMemcpyDeviceToHost);
     cudaMemcpy(&velocityy[0], velYd, sizeof(double) * sizeY, cudaMemcpyDeviceToHost);
     cudaMemcpy(&velocityz[0], velZd, sizeof(double) * sizeZ, cudaMemcpyDeviceToHost);
+
+    printf("pz = %lf\n", positionz[0]);
+
 
     // free cudaMalloc
     cudaFree(forceXd);
@@ -159,66 +143,5 @@ void stepParticles(vector<double> &positionx, vector<double> &positiony , vector
     cudaFree(velYd);
     cudaFree(velZd);
 
-/* OPENMP Implementation
-    double *forceX = (double *)malloc(sizeof(double) * positionx.size());
-    double *forceY = (double *)malloc(sizeof(double) * positionx.size());
-    double *forceZ = (double *)malloc(sizeof(double) * positionx.size());
-
-    double *posX = &positionx[0];
-    double *posY = &positiony[0];
-    double *posZ = &positionz[0];
-
-    double *mass = &masses[0];
-
-    int sizeX = positionx.size();
-    int sizeY = positiony.size();
-    int sizeZ = positionz.size();
-
-    double *velx = &velocityx[0];
-    double *vely = &velocityy[0];
-    double *velz = &velocityz[0];
-
-   #pragma omp parallel for
-   for (int i = 0; i < sizeX; i++ ) {
-      double forcex = 0, forcey = 0, forcez = 0;
-	   #pragma simd
-      for(int j = 0; j < sizeX; j++ ) {
-	      if ( j != i ) {
-	    double rijx = posX[j] - posX[i];
-	    double rijy = posY[j] - posY[i];
-	    double rijz = posZ[j] - posZ[i];
-	    double normalize = pow(rijx*rijx + rijy*rijy + rijz*rijz, 0.5);
-	    double rsquared = normalize * normalize;
-	    double numerator = mass[i] * mass[j];
-	   	   double denominator = pow(rsquared + e2, 3.0/2);
-		      double multiplier = numerator/denominator;
-		      forcex += multiplier * rijx;
-	   	   forcey += multiplier * rijy;
-	   	   forcez += multiplier * rijz;
-	      }
-      }
-	   //forceX.push_back(forcex);
-	   //forceY.push_back(forcey);
-	   //forceZ.push_back(forcez);
-	   forceX[i] = forcex;
-	   forceY[i] = forcey;
-	   forceZ[i] = forcez;
-   }
-
-//    for(int i = 0; i < particles.size(); i++) {
-//        particles.at(i)->updateParticleVelocity(forces.at(i), h);
-//        particles.at(i)->updateParticlePosition(forces.at(i), h);
-//    }
-   #pragma omp parallel for
-   for (int i = 0; i < positionx.size(); i++) {
-      velx[i] += (h * 1.0/mass[i]) * forceX[i];
-      vely[i] += (h * 1.0/mass[i]) * forceY[i];
-      velz[i] += (h * 1.0/mass[i]) * forceZ[i];
-
-      posX[i] += (h * velx[i]);
-      posY[i] += (h * vely[i]);
-      posZ[i] += (h * velz[i]);
-   }
-*/
-   t += h;
+    *t += h;
 }
