@@ -1,6 +1,6 @@
 CC=icc
 CXX=icpc
-CFLAGS=-std=c++0x -Wall -pedantic -O3
+CFLAGS=-std=c++0x -Wall -pedantic -g -O3 -debug inline-debug-info
 ifdef MIC
 INC=-I$(EIGEN3_INCLUDE_DIR) -I/CPE419/glew-1.13.0/include -I$(GLFW_DIR)/include
 else
