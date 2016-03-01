@@ -1,0 +1,35 @@
+Timothy Chu
+Nathan Yee
+Jonathan Lin (Our partner from Professor Sueda's section)
+README for Project 4 - Galaxy Simulator
+CPE419
+
+Handed in a zip file with all relevant files.
+
+To compile:
+1) Intel implementation: 
+   - Change directory to the "build" folder. Run "make"
+
+2) GPU implementation:
+   - Change directory to the "src/cuda" folder. Run "make"
+
+To Run:
+1) Intel implementation:
+   - After compiling inside the "build" folder, run for GL version:
+      "./Lab09 ../resources/ ../resources/collide1231.txt"
+      NOTE: collide1231.txt can be changed to any particle file.
+
+   - After compiling inside the "build" folder, run for non-GL version:
+      "./Lab09 100 ../resources/collide1231.txt"
+      NOTE: collide1231.txt can be changed to any particle file. 
+      100 can be changed to any number of steps.
+
+2) GPU implementation:
+   - After compiling inside the "src/cuda" folder, run for GL version:
+      "./Lab09 ../../resources/ ../../resources/collide1231.txt"
+      NOTE: collide1231.txt can be changed to any particle file.
+
+   - After compiling inside the "src/cuda" folder, run for non-GL version:
+      "./Lab09 100 ../../resources/collide1231.txt"
+      NOTE: collide1231.txt can be changed to any particle file. 
+      100 can be changed to any number of steps.

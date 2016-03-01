@@ -21,8 +21,6 @@
 //CUDA IMPORTS
 #include </usr/local/cuda/include/cuda_runtime.h>
 
-//#define CUDA_BLOCK 32
-
 using namespace std;
 using namespace Eigen;
 
@@ -39,8 +37,7 @@ shared_ptr<Texture> texture;
 
 vector< shared_ptr<Particle> > particles;
 
-//PARRALLEL ARRAYS FOR PARTICLE
-
+//PARALLEL ARRAYS FOR PARTICLE
 vector <double> masses;
 
 vector <double> positionx;
@@ -69,8 +66,7 @@ vector <vector <float> > indBuf;
 vector <GLuint> posBufID;
 vector <GLuint> texBufID;
 vector <GLuint> indBufID;
-//PARRALLEL ARRAYS FOR PARTICLE
-
+//PARALLEL ARRAYS FOR PARTICLE
 
 double t, h, e2;
 
@@ -242,14 +238,14 @@ void renderGL()
 	// Sort particles by Z for transparency rendering.
 	// Since we don't want to modify the contents of the vector, we compute the
 	// sorted indices and traverse the particles in this sorted order.
-//	auto sortedIndices = sortIndices(particles);
-//    auto sortedIndexx = sortIndicices(positionx);
-//    auto sortedIndexy = sortIndicices(positiony);
-    auto sortedIndexz = sortIndices(positionz);
-//	for(int i = 0; i < sortedIndices.size(); ++i) {
-//		int ii = sortedIndices[i];
-//		particles[ii]->draw(prog, MV);
-//	}
+   //	auto sortedIndices = sortIndices(particles);
+   // auto sortedIndexx = sortIndicices(positionx);
+   // auto sortedIndexy = sortIndicices(positiony);
+   auto sortedIndexz = sortIndices(positionz);
+   //	for(int i = 0; i < sortedIndices.size(); ++i) {
+   //		int ii = sortedIndices[i];
+   //		particles[ii]->draw(prog, MV);
+   //	}
     for(int i = 0; i < sortedIndexz.size(); i++) {
 	int ii = sortedIndexz[i];
 	/*
@@ -316,13 +312,13 @@ void loadParticles(const char *filename)
     // Rest of the lines:
     // <mass> <position> <velocity> <color> <radius>
     while(in.good()) {
-	double mass, posx, posy, posz, velx, vely, velz,
-	color1, color2, color3, rad;
-	in >> mass;
-	in >> posx;
-	in >> posy;
-	in >> posz;
-	in >> velx;
+      double mass, posx, posy, posz, velx, vely, velz,
+      color1, color2, color3, rad;
+      in >> mass;
+      in >> posx;
+      in >> posy;
+      in >> posz;
+      in >> velx;
 	in >> vely;
 	in >> velz;
 	in >> color1;
@@ -411,10 +407,6 @@ int main(int argc, char **argv)
 	   // Run without OpenGL
 	   for(int k = 0; k < steps; ++k) {
 	      stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityz, h, &t, e2);
-	      // printf("%lf\n", positionx[0]);
-	      // printf("%lf\n", positiony[0]);
-	      // printf("%lf\n", positionz[0]);
-	      //cout << "posX = " << positionx[0];
 	   }
 	} else {
 	   // `steps` could not be parsed
@@ -464,8 +456,6 @@ int main(int argc, char **argv)
 		   countFrames++;
 		   // Step simulation.
 		   stepParticles(positionx, positiony, positionz, masses, velocityx, velocityy, velocityz, h, &t, e2);
-		   printf("%lf\n", positionx[0]);
-//			cout << "posX = " << positionx[0];
 		   // Render scene.
 		   renderGL();
 		   // Swap front and back buffers.

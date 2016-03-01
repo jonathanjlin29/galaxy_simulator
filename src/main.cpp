@@ -5,7 +5,7 @@
 
 #define GLEW_STATIC
 // use this to run on mic comment out if no mic
-#include "/CPE419/glew-1.13.0/include/GL/glew.h"
+//#include "/CPE419/glew-1.13.0/include/GL/glew.h"
 // use when no mic
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -477,9 +477,9 @@ int main(int argc, char **argv)
       // Run without OpenGL
       for(int k = 0; k < steps; ++k) {
 	 stepParticles();
-	 printf("%lf\n", positionx[0]);
-	 printf("%lf\n", positiony[0]);
-	 printf("%lf\n", positionz[0]);
+	 //printf("%lf\n", positionx[0]);
+	 //printf("%lf\n", positiony[0]);
+	 //printf("%lf\n", positionz[0]);
       }
    } else {
       // `steps` could not be parsed
@@ -534,7 +534,7 @@ int main(int argc, char **argv)
 	 countFrames++;
 	 // Step simulation.
 	 stepParticles();
-	 cout << positionx[0] << "\n";
+	 //cout << positionx[0] << "\n";
 	 // Render scene.
 	 renderGL();
 	 // Swap front and back buffers.

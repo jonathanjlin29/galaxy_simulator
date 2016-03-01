@@ -13,54 +13,30 @@ using namespace std;
 
 __global__ void calculateStepParticles(double *forceXd, double *forceYd, double *forceZd, double *posXd, double *posYd, double *posZd,
 				       double *massd, double *velXd, double *velYd, double *velZd, double h, int sizeX, int numParticlesPadded, double e2) {
-   int tNdx = blockIdx.x * CUDA_BLOCK + threadIdx.x;    // <-- might
-							// need to
-							// check this
-
-//   double e2 = 1e-4;
-   //double h = 1.0;
-
-
-   /* Shared Memory Approach
-   __shared__ double posXds[numParticlesPadded];
-   __shared__ double posYds[numParticlesPadded];
-   __shared__ double posZds[numParticlesPadded];
-   __shared__ double massds[numParticlesPadded];
-   __shared__ double velXds[numParticlesPadded];
-   __shared__ double velYds[numParticlesPadded];
-   __shared__ double velZds[numParticlesPadded];
-
-   // branch divergence?
-   // attempting to copy all data
-   if(tNdx < CUDA_BLOCK) {
-      for(int i = 0; i < numParticlesPadded / CUDA_BLOCK; i++) {
-
-      }
-      }
-   */
+   int tNdx = blockIdx.x * CUDA_BLOCK + threadIdx.x;
 
    double forcex = 0, forcey = 0, forcez = 0;
    for(int i = 0; i < numParticlesPadded; i++) {
       if(tNdx != i) {
-	 double rijx = posXd[i] - posXd[tNdx];
-	 double rijy = posYd[i] - posYd[tNdx];
-	 double rijz = posZd[i] - posZd[tNdx];
-	 double normalize = pow(rijx*rijx + rijy*rijy + rijz*rijz, 0.5);
-	 double rsquared = normalize * normalize;
-	 double numerator = massd[tNdx] * massd[i];
-	 double denominator = pow(rsquared + e2, 3.0/2);
-	 double multiplier = numerator/denominator;
-	 forcex += multiplier * rijx;
-	 forcey += multiplier * rijy;
-	 forcez += multiplier * rijz;
+	      double rijx = posXd[i] - posXd[tNdx];
+	      double rijy = posYd[i] - posYd[tNdx];
+	      double rijz = posZd[i] - posZd[tNdx];
+	      double normalize = pow(rijx*rijx + rijy*rijy + rijz*rijz, 0.5);
+	      double rsquared = normalize * normalize;
+	      double numerator = massd[tNdx] * massd[i];
+	      double denominator = pow(rsquared + e2, 3.0/2);
+	      double multiplier = numerator/denominator;
+    
+	      forcex += multiplier * rijx;
+	      forcey += multiplier * rijy;
+	      forcez += multiplier * rijz;
       }
    }
-
+   
 
    forceXd[tNdx] = forcex;
    forceYd[tNdx] = forcey;
    forceZd[tNdx] = forcez;
-   //printf("cuda = %lf\n",forceZd[0]);
 
    velXd[tNdx] += (h * 1.0/massd[tNdx]) * forceXd[tNdx];
    velYd[tNdx] += (h * 1.0/massd[tNdx]) * forceYd[tNdx];
@@ -69,10 +45,6 @@ __global__ void calculateStepParticles(double *forceXd, double *forceYd, double 
    posXd[tNdx] += (h * velXd[tNdx]);
    posYd[tNdx] += (h * velYd[tNdx]);
    posZd[tNdx] += (h * velZd[tNdx]);
-
-   // printf("cuda = %lf\n",posYd[0] );
-   // printf("cuda = %lf\n",posZd[0] );
-
 }
 
 void stepParticles(vector<double> &positionx, vector<double> &positiony , vector<double> &positionz, vector<double> &masses,
@@ -91,19 +63,19 @@ void stepParticles(vector<double> &positionx, vector<double> &positiony , vector
     double *velXd = NULL, *velYd = NULL, *velZd = NULL;
 
     // cudaMalloc with padding
-    cudaMalloc((void **) &forceXd, sizeof(double) * numParticlesPadded);
+    cudaError_t cudaerror = cudaMalloc((void **) &forceXd, sizeof(double) * numParticlesPadded);
     cudaMalloc((void **) &forceYd, sizeof(double) * numParticlesPadded);
     cudaMalloc((void **) &forceZd, sizeof(double) * numParticlesPadded);
-    cudaMalloc((void **) &posXd, sizeof(double) * numParticlesPadded);
+    cudaerror = cudaMalloc((void **) &posXd, sizeof(double) * numParticlesPadded);
     cudaMalloc((void **) &posYd, sizeof(double) * numParticlesPadded);
     cudaMalloc((void **) &posZd, sizeof(double) * numParticlesPadded);
     cudaMalloc((void **) &massd, sizeof(double) * numParticlesPadded);
     cudaMalloc((void **) &velXd, sizeof(double) * numParticlesPadded);
     cudaMalloc((void **) &velYd, sizeof(double) * numParticlesPadded);
-    cudaMalloc((void **) &velZd, sizeof(double) * numParticlesPadded);
+    cudaerror = cudaMalloc((void **) &velZd, sizeof(double) * numParticlesPadded);
 
     // copy data from host to device in preparation for calculation
-    cudaMemcpy(posXd, &positionx[0], sizeof(double) * sizeX, cudaMemcpyHostToDevice);
+    cudaerror = cudaMemcpy(posXd, &positionx[0], sizeof(double) * sizeX, cudaMemcpyHostToDevice);
     cudaMemcpy(posYd, &positiony[0], sizeof(double) * sizeY, cudaMemcpyHostToDevice);
     cudaMemcpy(posZd, &positionz[0], sizeof(double) * sizeZ, cudaMemcpyHostToDevice);
     cudaMemcpy(massd, &masses[0], sizeof(double) * sizeX, cudaMemcpyHostToDevice);
@@ -113,11 +85,8 @@ void stepParticles(vector<double> &positionx, vector<double> &positiony , vector
 
     dim3 dimBlock(CUDA_BLOCK, 1);
     dim3 dimGrid(numParticlesPadded / CUDA_BLOCK, 1);
-    //cout << "about to execute the kernal\n";
-
 
     // kernel call
-    //MatMulShared<<<dimGrid, dimBlock>>>(matrixAd, matrixBd, resultMatrixd, matrixANewRow, matrixBNewCol, matrixANewCol);
     calculateStepParticles<<<dimGrid, dimBlock>>>(forceXd, forceYd, forceZd, posXd, posYd, posZd, massd, velXd, velYd, velZd, h, sizeX, numParticlesPadded, e2);
 
     // copy data back from device to host
@@ -127,9 +96,6 @@ void stepParticles(vector<double> &positionx, vector<double> &positiony , vector
     cudaMemcpy(&velocityx[0], velXd, sizeof(double) * sizeX, cudaMemcpyDeviceToHost);
     cudaMemcpy(&velocityy[0], velYd, sizeof(double) * sizeY, cudaMemcpyDeviceToHost);
     cudaMemcpy(&velocityz[0], velZd, sizeof(double) * sizeZ, cudaMemcpyDeviceToHost);
-
-    printf("pz = %lf\n", positionz[0]);
-
 
     // free cudaMalloc
     cudaFree(forceXd);
